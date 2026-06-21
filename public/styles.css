@@ -303,6 +303,8 @@ h1 {
 /* ─── Stage ─── */
 .stage {
   padding: 20px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .stage-header {
@@ -481,11 +483,17 @@ p.description.collapsed {
 }
 
 /* ─── Verse detail ─── */
+.detail-grid {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .detail-grid section {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
+  overflow-wrap: break-word;
 }
 
 h3 {
@@ -502,6 +510,8 @@ h3 {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
   font-size: 14px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .verse:last-child {
@@ -600,10 +610,11 @@ h3 {
 .graph-stack {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .inspector {
-  min-width: 240px;
+  min-width: 0;
 }
 
 /* ─── Responsive ─── */
