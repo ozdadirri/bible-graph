@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "precompute": "node scripts/precompute.js",
-    "build": "npm run precompute",
+    "build": "echo 'Data already precomputed'",
     "dev": "npx serve public",
     "start": "npx serve public"
   }
