@@ -607,13 +607,28 @@ h3 {
 }
 
 /* ─── Responsive ─── */
+
+/* Prevent any child from overflowing the shell */
+.hero,
+.map-section,
+.workspace,
+.sidebar,
+.stage {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 @media (max-width: 1200px) {
   .stage-body {
     grid-template-columns: 1fr;
   }
 
+  /* Show inspector below graph instead of hiding it */
   .inspector {
-    display: none;
+    display: block;
+    border-left: none;
+    border-top: 2px solid #1e2942;
   }
 }
 
@@ -660,9 +675,5 @@ h3 {
 
   .stage-body {
     grid-template-columns: 1fr;
-  }
-
-  .inspector {
-    display: none;
   }
 }
