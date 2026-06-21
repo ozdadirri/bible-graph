@@ -55,6 +55,15 @@ function updateVerseVisibility() { els.detailGrid.classList.toggle("visible", el
 function tl(label) { return i18n.name(label); }
 function tt(key) { return i18n.t(key); }
 
+function formatDesc(text) {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/g, '<em>$1</em>')
+    .replace(/\(\s*((?:[1-3]\s)?[A-Z][a-z]+\s\d+[:\d\s;,–-]*)\s*\)/g, '<span class="bible-ref">$1</span>')
+    .replace(/\n\n/g, '</p><p class="desc-para">');
+}
+
 function refreshUI() {
   // Update static UI text
   document.querySelector("h1").textContent = tt("title");
@@ -178,6 +187,25 @@ function renderInspector(node) {
   els.inspectorType.textContent = titleCase(tl(node.type || "entity"));
   els.inspectorTitle.textContent = tl(node.label);
   els.inspectorProps.innerHTML = "";
+  if (node.description) {
+    const descWrap = document.createElement("div");
+    descWrap.className = "inspector-desc-wrap";
+    const descP = document.createElement("p");
+    descP.className = "inspector-desc collapsed";
+    descP.innerHTML = formatDesc(node.description);
+    descWrap.appendChild(descP);
+    if (node.description.length > 120) {
+      const toggle = document.createElement("button");
+      toggle.className = "desc-toggle";
+      toggle.textContent = tt("showMore");
+      toggle.addEventListener("click", () => {
+        descP.classList.toggle("collapsed");
+        toggle.textContent = descP.classList.contains("collapsed") ? tt("showMore") : tt("showLess");
+      });
+      descWrap.appendChild(toggle);
+    }
+    els.inspectorProps.appendChild(descWrap);
+  }
   for (const [key, value] of [[tt("type"), titleCase(tl(node.type))], [tt("group"), titleCase(tl(node.group))], [tt("references"), Math.round(node.score || 1)]]) {
     const row = document.createElement("div");
     row.className = "prop-row";
@@ -207,7 +235,7 @@ function renderDetails(graph) {
   els.type.textContent = titleCase(tl(entity.type || "entity"));
   els.title.textContent = tl(entity.label);
   const desc = entity.description || entity.subtitle || "";
-  els.description.textContent = desc;
+  els.description.innerHTML = formatDesc(desc);
   els.description.classList.add("collapsed");
   els.descToggle.textContent = tt("showMore");
   els.descToggle.hidden = desc.length < 200;

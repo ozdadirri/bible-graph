@@ -21,7 +21,10 @@ function first(value) {
 function cleanText(value, max = 0) {
   const text = Array.isArray(value) ? value.join(" ") : value || "";
   const cleaned = String(text)
-    .replace(/\s+/g, " ")
+    .replace(/\uFFFD/g, " ")
+    .replace(/ {4,}/g, "\n\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n ?/g, "\n")
     .replace(/\[[^\]]+\]\([^)]+\)/g, (match) => match.slice(1, match.indexOf("]")))
     .trim();
   if (max > 0) return cleaned.slice(0, max);
@@ -107,7 +110,7 @@ function summary(record, type) {
       count: f.verseCount || 0,
       lat: Number(f.latitude || f.openBibleLat),
       lon: Number(f.longitude || f.openBibleLong),
-      description: cleanText(f.dictionaryText || f.dictText || f.comment, 180),
+      description: cleanText(f.dictionaryText || f.dictText || f.comment),
     };
   }
   if (type === "event") {
@@ -118,7 +121,7 @@ function summary(record, type) {
       label: label(record, type),
       subtitle: isoYearLabel(f.startDate),
       count: (f.verses || []).length,
-      description: cleanText(f.notes, 180),
+      description: cleanText(f.notes),
     };
   }
   if (type === "book") {
@@ -137,6 +140,12 @@ function summary(record, type) {
 
 function pushNode(nodes, record, type, group, score = 1) {
   if (!record || nodes.has(record.id)) return;
+  const f = record.fields || {};
+  let desc = "";
+  if (type === "person") desc = cleanText(f.dictionaryText || f.dictText);
+  else if (type === "place") desc = cleanText(f.dictionaryText || f.dictText || f.comment);
+  else if (type === "event") desc = cleanText(f.notes);
+  else if (type === "book") desc = `${f.chapterCount || 0} chapters, ${f.peopleCount || 0} people, ${f.placeCount || 0} places`;
   nodes.set(record.id, {
     id: record.id,
     type,
@@ -144,6 +153,7 @@ function pushNode(nodes, record, type, group, score = 1) {
     label: label(record, type),
     slug: slug(record, type),
     score,
+    description: desc,
   });
 }
 
