@@ -1,0 +1,11 @@
+{
+  "name": "bible-knowledge-graph-static-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "precompute": "node scripts/precompute.js",
+    "build": "npm run precompute",
+    "dev": "npx serve public",
+    "start": "npx serve public"
+  }
+}

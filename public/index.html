@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bible Knowledge Graph</title>
+    <link rel="icon" href="/assets/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-label="Bible knowledge graph explorer">
+        <div class="brand-row">
+          <span class="brand-mark">BG</span>
+          <h1>Bible Graph</h1>
+        </div>
+        <span id="datasetStats" class="hero-stats">Loading...</span>
+        <div class="search-wrap">
+          <input id="searchInput" type="search" placeholder="Search people, places, events..." autocomplete="off">
+          <div id="searchResults" class="search-results" hidden></div>
+        </div>
+        <button id="mapToggle" class="map-toggle-btn">Map</button>
+        <button id="langToggle" class="lang-toggle-btn">中文</button>
+      </section>
+
+      <section id="mapSection" class="map-section" hidden>
+        <div class="map-header">
+          <h2>Biblical Places</h2>
+          <button id="mapClose" class="map-close">&times; Close Map</button>
+        </div>
+        <div id="map" class="map-container"></div>
+      </section>
+
+      <section class="workspace">
+        <aside class="sidebar">
+          <div class="tabs" role="tablist" aria-label="Entity type">
+            <button class="tab active" data-tab="people">People</button>
+            <button class="tab" data-tab="places">Places</button>
+            <button class="tab" data-tab="events">Events</button>
+            <button class="tab" data-tab="books">Books</button>
+          </div>
+          <div id="entityList" class="entity-list" aria-live="polite"></div>
+        </aside>
+
+        <section class="stage">
+          <div class="stage-header">
+            <div>
+              <p id="entityType" class="eyebrow">Person</p>
+              <h2 id="entityTitle">Moses</h2>
+            </div>
+            <div class="header-controls">
+              <label class="verse-toggle">
+                <input type="checkbox" id="verseToggle" checked>
+                <span>Show verses</span>
+              </label>
+              <div id="entityStats" class="stats"></div>
+            </div>
+          </div>
+          <div class="description-wrap">
+            <p id="entityDescription" class="description collapsed"></p>
+            <button id="descToggle" class="desc-toggle" hidden>Show more</button>
+          </div>
+          <div class="stage-body">
+            <div class="graph-stack">
+              <div class="graph-panel">
+                <div id="graphFilters" class="graph-filters"></div>
+                <canvas id="graphCanvas" width="1100" height="620" aria-label="Knowledge graph visualization"></canvas>
+              </div>
+              <div id="detailGrid" class="detail-grid">
+                <section>
+                  <h3>Referenced verses</h3>
+                  <div id="verseList" class="verse-list"></div>
+                </section>
+              </div>
+            </div>
+            <aside class="inspector" hidden>
+              <div class="inspector-head">
+                <p id="inspectorType" class="eyebrow">Selected</p>
+                <h3 id="inspectorTitle">Click a node</h3>
+              </div>
+              <div id="inspectorProps" class="prop-list"></div>
+              <div class="inspector-section">
+                <h3>Connected nodes</h3>
+                <div id="inspectorNeighbors" class="neighbor-list"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/i18n.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
