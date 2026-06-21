@@ -792,7 +792,7 @@ async function init() {
           `<b style="font-size:14px">${place.label}</b><br>` +
           `<span style="color:#65708a;font-size:12px">${place.subtitle || "Place"}</span><br>` +
           `<span style="font-size:12px">${place.count || 0} references</span>` +
-          `${place.description ? `<p style="font-size:11px;color:#444;margin:6px 0 0">${place.description.slice(0, 150)}${place.description.length > 150 ? "…" : ""}</p>` : ""}` +
+          `${place.description ? `<p class="map-popup-desc collapsed" style="font-size:11px;color:#444;margin:6px 0 0">${formatDesc(place.description)}</p>${place.description.length > 150 ? `<button class="desc-toggle" onclick="this.previousElementSibling.classList.toggle('collapsed');this.textContent=this.previousElementSibling.classList.contains('collapsed')?'${tt("showMore")}':'${tt("showLess")}'">${tt("showMore")}</button>` : ""}` : ""}` +
           `</div>`
         );
         marker.on("click", () => selectItem(place));

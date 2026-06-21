@@ -375,6 +375,7 @@ h2 {
   line-height: 1.5;
 }
 
+p.map-popup-desc.collapsed,
 p.description.collapsed {
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
