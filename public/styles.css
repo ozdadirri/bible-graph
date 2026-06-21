@@ -602,9 +602,7 @@ h3 {
 
 /* ─── Stage body layout ─── */
 .stage-body {
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: 16px;
+  display: block;
 }
 
 .graph-stack {
@@ -631,13 +629,7 @@ h3 {
 }
 
 @media (max-width: 1200px) {
-  .stage-body {
-    grid-template-columns: 1fr;
-  }
-
-  /* Show inspector below graph instead of hiding it */
   .inspector {
-    display: block;
     border-left: none;
     border-top: 2px solid #1e2942;
   }
@@ -682,9 +674,5 @@ h3 {
 
   .graph-panel {
     min-height: 260px;
-  }
-
-  .stage-body {
-    grid-template-columns: 1fr;
   }
 }

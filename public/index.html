@@ -52,7 +52,7 @@
             </div>
             <div class="header-controls">
               <label class="verse-toggle">
-                <input type="checkbox" id="verseToggle" checked>
+                <input type="checkbox" id="verseToggle">
                 <span>Show verses</span>
               </label>
               <div id="entityStats" class="stats"></div>
@@ -68,6 +68,17 @@
                 <div id="graphFilters" class="graph-filters"></div>
                 <canvas id="graphCanvas" aria-label="Knowledge graph visualization"></canvas>
               </div>
+              <aside class="inspector" hidden>
+                <div class="inspector-head">
+                  <p id="inspectorType" class="eyebrow">Selected</p>
+                  <h3 id="inspectorTitle">Click a node</h3>
+                </div>
+                <div id="inspectorProps" class="prop-list"></div>
+                <div class="inspector-section">
+                  <h3>Connected nodes</h3>
+                  <div id="inspectorNeighbors" class="neighbor-list"></div>
+                </div>
+              </aside>
               <div id="detailGrid" class="detail-grid">
                 <section>
                   <h3>Referenced verses</h3>
@@ -75,17 +86,6 @@
                 </section>
               </div>
             </div>
-            <aside class="inspector" hidden>
-              <div class="inspector-head">
-                <p id="inspectorType" class="eyebrow">Selected</p>
-                <h3 id="inspectorTitle">Click a node</h3>
-              </div>
-              <div id="inspectorProps" class="prop-list"></div>
-              <div class="inspector-section">
-                <h3>Connected nodes</h3>
-                <div id="inspectorNeighbors" class="neighbor-list"></div>
-              </div>
-            </aside>
           </div>
         </section>
       </section>
