@@ -602,17 +602,26 @@ h3 {
 
 /* ─── Stage body layout ─── */
 .stage-body {
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  grid-template-rows: auto auto;
+  gap: 0 16px;
 }
 
-.graph-stack {
-  display: flex;
-  flex-direction: column;
+.stage-body .graph-panel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.stage-body .inspector {
+  grid-column: 2;
+  grid-row: 1 / 3;
   min-width: 0;
 }
 
-.inspector {
-  min-width: 0;
+.stage-body .detail-grid {
+  grid-column: 1;
+  grid-row: 2;
 }
 
 /* ─── Responsive ─── */
@@ -629,9 +638,25 @@ h3 {
 }
 
 @media (max-width: 1200px) {
-  .inspector {
+  .stage-body {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-body .graph-panel {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .stage-body .inspector {
+    grid-column: 1;
+    grid-row: 2;
     border-left: none;
     border-top: 2px solid #1e2942;
+  }
+
+  .stage-body .detail-grid {
+    grid-column: 1;
+    grid-row: 3;
   }
 }
 

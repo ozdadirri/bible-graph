@@ -63,28 +63,26 @@
             <button id="descToggle" class="desc-toggle" hidden>Show more</button>
           </div>
           <div class="stage-body">
-            <div class="graph-stack">
-              <div class="graph-panel">
-                <div id="graphFilters" class="graph-filters"></div>
-                <canvas id="graphCanvas" aria-label="Knowledge graph visualization"></canvas>
+            <div class="graph-panel">
+              <div id="graphFilters" class="graph-filters"></div>
+              <canvas id="graphCanvas" aria-label="Knowledge graph visualization"></canvas>
+            </div>
+            <aside class="inspector" hidden>
+              <div class="inspector-head">
+                <p id="inspectorType" class="eyebrow">Selected</p>
+                <h3 id="inspectorTitle">Click a node</h3>
               </div>
-              <aside class="inspector" hidden>
-                <div class="inspector-head">
-                  <p id="inspectorType" class="eyebrow">Selected</p>
-                  <h3 id="inspectorTitle">Click a node</h3>
-                </div>
-                <div id="inspectorProps" class="prop-list"></div>
-                <div class="inspector-section">
-                  <h3>Connected nodes</h3>
-                  <div id="inspectorNeighbors" class="neighbor-list"></div>
-                </div>
-              </aside>
-              <div id="detailGrid" class="detail-grid">
-                <section>
-                  <h3>Referenced verses</h3>
-                  <div id="verseList" class="verse-list"></div>
-                </section>
+              <div id="inspectorProps" class="prop-list"></div>
+              <div class="inspector-section">
+                <h3>Connected nodes</h3>
+                <div id="inspectorNeighbors" class="neighbor-list"></div>
               </div>
+            </aside>
+            <div id="detailGrid" class="detail-grid">
+              <section>
+                <h3>Referenced verses</h3>
+                <div id="verseList" class="verse-list"></div>
+              </section>
             </div>
           </div>
         </section>
