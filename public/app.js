@@ -16,7 +16,7 @@ const state = {
   panY: 0,
   isPanning: false,
   panStart: null,
-  simulation: { running: false, tick: 0, maxTicks: 300 },
+  simulation: { running: false, tick: 0, maxTicks: 120 },
 };
 
 const els = {
@@ -114,6 +114,12 @@ async function fetchJson(path) {
 function graphPath(item) {
   const type = { person: "person", place: "place", book: "book", chapter: "chapter", event: "event" }[item.type];
   return type ? `/data/graph/${type}/${item.slug}.json` : null;
+}
+
+async function fetchFullGraph(node) {
+  const path = graphPath(node);
+  if (!path) return null;
+  try { return await fetchJson(path); } catch (e) { return null; }
 }
 
 async function fetchNodeGraph(node) {
@@ -228,6 +234,19 @@ function renderInspector(node) {
   }
 }
 
+function renderVerses(verses) {
+  els.verses.innerHTML = "";
+  for (const verse of (verses || []).slice(0, 20)) {
+    const row = document.createElement("div");
+    row.className = "verse";
+    row.innerHTML = `<b>${verse.ref || "Verse"}</b><p>${verse.text || ""}</p>`;
+    els.verses.appendChild(row);
+  }
+  if (!verses?.length) {
+    els.verses.innerHTML = `<p class="note">${tt("noVerse")}</p>`;
+  }
+}
+
 // ─── Details panel ───
 function renderDetails(graph) {
   state.graph = graph;
@@ -246,16 +265,9 @@ function renderDetails(graph) {
     stat.innerHTML = `<b>${value}</b><span>${key}</span>`;
     els.statBox.appendChild(stat);
   }
-  els.verses.innerHTML = "";
-  for (const verse of graph.verses || []) {
-    const row = document.createElement("div");
-    row.className = "verse";
-    row.innerHTML = `<b>${verse.ref || "Verse"}</b><p>${verse.text || ""}</p>`;
-    els.verses.appendChild(row);
-  }
-  if (!graph.verses?.length) {
-    els.verses.innerHTML = `<p class="note">${tt("noVerse")}</p>`;
-  }
+  const heading = document.querySelector("#detailGrid h3");
+  if (heading) heading.textContent = tt("referencedVerses");
+  renderVerses(graph.verses || []);
   updateVerseVisibility();
   renderInspector(null);
 }
@@ -310,11 +322,14 @@ async function expandNode(clickedNode) {
   const existingIds = new Set(state.nodes.map(n => n.id));
   const nodesToAdd = data.nodes.filter(n => !existingIds.has(n.id));
 
-  for (const n of nodesToAdd) {
+  const count = nodesToAdd.length;
+  for (let i = 0; i < count; i++) {
+    const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+    const radius = 120 + count * 5;
     state.nodes.push({
-      ...n,
-      x: clickedNode.x + (Math.random() * 160 - 80),
-      y: clickedNode.y + (Math.random() * 160 - 80),
+      ...nodesToAdd[i],
+      x: clickedNode.x + Math.cos(angle) * radius,
+      y: clickedNode.y + Math.sin(angle) * radius,
       vx: 0, vy: 0, fixed: false,
       expandedChildIds: [],
       childCount: undefined,
@@ -378,7 +393,7 @@ function simulationStep() {
       const a = nodes[i], b = nodes[j];
       let dx = b.x - a.x, dy = b.y - a.y;
       const dist = Math.max(1, Math.hypot(dx, dy));
-      const force = 30000 / (dist * dist);
+      const force = 20000 / (dist * dist);
       dx /= dist; dy /= dist;
       if (!a.fixed) { a.fx -= dx * force; a.fy -= dy * force; }
       if (!b.fixed) { b.fx += dx * force; b.fy += dy * force; }
@@ -391,7 +406,7 @@ function simulationStep() {
     const a = link.source, b = link.target;
     let dx = b.x - a.x, dy = b.y - a.y;
     const dist = Math.max(1, Math.hypot(dx, dy));
-    const force = (dist - 130) * 0.03;
+    const force = (dist - 130) * 0.015;
     dx /= dist; dy /= dist;
     if (!a.fixed) { a.fx += dx * force; a.fy += dy * force; }
     if (!b.fixed) { b.fx -= dx * force; b.fy -= dy * force; }
@@ -405,7 +420,7 @@ function simulationStep() {
     }
   }
 
-  const damping = 0.85;
+  const damping = 0.7;
   for (const node of nodes) {
     if (node.fixed) continue;
     node.vx = (node.vx + node.fx) * damping;
@@ -637,6 +652,22 @@ async function init() {
     }
   });
 
+  // Fullscreen toggle
+  const graphPanel = document.querySelector("#graphPanel");
+  const fsBtn = document.querySelector("#graphFullscreen");
+  fsBtn.addEventListener("click", () => {
+    graphPanel.classList.toggle("fullscreen");
+    fsBtn.textContent = graphPanel.classList.contains("fullscreen") ? "✕" : "⛶";
+    drawGraph();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && graphPanel.classList.contains("fullscreen")) {
+      graphPanel.classList.remove("fullscreen");
+      fsBtn.textContent = "⛶";
+      drawGraph();
+    }
+  });
+
   // Language toggle
   document.querySelector("#langToggle").addEventListener("click", () => {
     i18n.toggle();
@@ -744,13 +775,30 @@ async function init() {
     }
   });
 
-  // Single click for inspector
-  els.canvas.addEventListener("click", (e) => {
+  // Single click for inspector + shared verses
+  els.canvas.addEventListener("click", async (e) => {
     if (wasDragged) { wasDragged = false; return; }
     if (state.isPanning) return;
     const p = canvasPoint(e);
     const node = findNodeAt(p);
-    if (node) renderInspector(node);
+    if (!node) {
+      renderInspector(null);
+      if (state.graph) {
+        const heading = document.querySelector("#detailGrid h3");
+        if (heading) heading.textContent = tt("referencedVerses");
+        renderVerses(state.graph.verses || []);
+      }
+      return;
+    }
+    renderInspector(node);
+    // Show verses for the clicked node
+    if (node.group !== "focus") {
+      const clickedGraph = await fetchFullGraph(node);
+      const heading = document.querySelector("#detailGrid h3");
+      if (heading) heading.textContent = `${tt("referencedVerses")} — ${tl(node.label)}`;
+      renderVerses(clickedGraph?.verses || []);
+      if (!els.verseToggle.checked) els.detailGrid.classList.add("visible");
+    }
   });
 
   window.addEventListener("resize", () => drawGraph());
