@@ -221,7 +221,7 @@ function buildChapterGraph(chapter) {
     },
     nodes: [...nodes.values()],
     links,
-    verses: verseRecords.slice(0, 8).map(compactVerse),
+    verses: verseRecords.slice(0, 50).map(compactVerse),
   };
 }
 
@@ -256,6 +256,7 @@ function buildEventGraph(event) {
   }
 
   const verseRecords = (f.verses || []).map((id) => versesById.get(id)).filter(Boolean);
+  const allRefs = verseRecords.map(v => v.fields?.osisRef).filter(Boolean);
   return {
     entity: { ...summary(event, "event"), rawId: event.id },
     stats: {
@@ -265,7 +266,8 @@ function buildEventGraph(event) {
     },
     nodes: [...nodes.values()],
     links,
-    verses: verseRecords.slice(0, 8).map(compactVerse),
+    verses: verseRecords.slice(0, 50).map(compactVerse),
+    allRefs,
   };
 }
 
@@ -300,8 +302,9 @@ function buildPersonGraph(person) {
     }
   }
 
-  const verseIds = (f.verses || []).slice(0, 8);
-  const sampleVerses = verseIds.map((id) => versesById.get(id)).filter(Boolean).map(compactVerse);
+  const allVerseRecords = (f.verses || []).map((id) => versesById.get(id)).filter(Boolean);
+  const sampleVerses = allVerseRecords.slice(0, 50).map(compactVerse);
+  const allRefs = allVerseRecords.map(v => v.fields?.osisRef).filter(Boolean);
 
   return {
     entity: { ...summary(person, "person"), rawId: person.id },
@@ -313,6 +316,7 @@ function buildPersonGraph(person) {
     nodes: [...nodes.values()],
     links,
     verses: sampleVerses,
+    allRefs,
   };
 }
 
@@ -333,13 +337,16 @@ function buildPlaceGraph(place) {
     }
   }
 
-  const sampleVerses = (f.verses || []).slice(0, 8).map((id) => versesById.get(id)).filter(Boolean).map(compactVerse);
+  const allVerseRecords = (f.verses || []).map((id) => versesById.get(id)).filter(Boolean);
+  const sampleVerses = allVerseRecords.slice(0, 50).map(compactVerse);
+  const allRefs = allVerseRecords.map(v => v.fields?.osisRef).filter(Boolean);
   return {
     entity: { ...summary(place, "place"), rawId: place.id },
     stats: { verses: f.verseCount || 0, events: (f.eventsHere || []).length, people: (f.peopleDied || []).length },
     nodes: [...nodes.values()],
     links,
     verses: sampleVerses,
+    allRefs,
   };
 }
 
@@ -382,7 +389,7 @@ function buildBookGraph(book) {
     stats: { chapters: f.chapterCount || 0, verses: f.verseCount || 0, people: f.peopleCount || 0, places: f.placeCount || 0 },
     nodes: [...nodes.values()],
     links,
-    verses: bookVerses.slice(0, 6).map(compactVerse),
+    verses: bookVerses.slice(0, 50).map(compactVerse),
   };
 }
 
@@ -423,18 +430,16 @@ writeJson("places-summary.json", placesSummary.slice(0, 240));
 writeJson("events-summary.json", eventsSummary);
 writeJson("books-summary.json", booksSummary);
 
-const featuredPeople = [...new Set(["moses_2108", "paul_2479", ...peopleSummary.slice(0, 80).map((item) => item.slug)])];
-const featuredPlaces = [...new Set(["jerusalem_636", "egypt_362", "bethlehem_218", "galilee_433", "mount_sinai_855", ...placesSummary.slice(0, 80).map((item) => item.slug)])];
 const featuredBooks = booksSummary.map((item) => item.slug);
 
-for (const key of featuredPeople) {
-  const person = people.find((record) => record.fields?.slug === key || record.fields?.personLookup === key);
-  if (person) writeJson(`graph/person/${key}.json`, buildPersonGraph(person));
+for (const person of people.filter(r => r.fields?.status !== "draft")) {
+  const key = slug(person, "person");
+  writeJson(`graph/person/${key}.json`, buildPersonGraph(person));
 }
 
-for (const key of featuredPlaces) {
-  const place = places.find((record) => record.fields?.slug === key || record.fields?.placeLookup === key);
-  if (place) writeJson(`graph/place/${key}.json`, buildPlaceGraph(place));
+for (const place of places.filter(r => r.fields?.status !== "draft")) {
+  const key = slug(place, "place");
+  writeJson(`graph/place/${key}.json`, buildPlaceGraph(place));
 }
 
 for (const key of featuredBooks) {
